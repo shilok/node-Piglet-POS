@@ -5,13 +5,13 @@ exports.up = function(knex, Promise) {
     })
     .createTable('Inventory', table =>{
       table.increments()
-      table.string('name', 25).notNullable()
+      table.string('name').notNullable()
     })
     .createTable('Store', table =>{
         table.increments();
         table.integer('locationID').unsigned().references('id').inTable('Location');  
         table.integer('stockInventoryID').unsigned().references('id').inTable('Inventory');  
-        table.string('name', 25).notNullable()
+        table.string('name').notNullable()
       })
       .createTable('SalaryType', table =>{
         table.increments()
@@ -227,3 +227,4 @@ exports.up = function(knex, Promise) {
     .dropTable('Inventory')
     .dropTable('Location')
 };
+//
