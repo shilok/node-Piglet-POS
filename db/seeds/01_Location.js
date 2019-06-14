@@ -10,7 +10,6 @@ exports.seed = function (knex, Promise) {
         { "name": "Sale" },
         { "name": "Murcia" },
         { "name": "Kuala Lumpur" },
-        { "name": "Khorramābād" },
         { "name": "Laifang" },
         { "name": "Taoxi" },
         { "name": "Roche Terre" },
