@@ -22,18 +22,17 @@ exports.seed = function (knex, Promise) {
         { "name": "Sebasang" },
         { "name": "Sabaneta" },
         { "name": "Santa Rosa del Sara" },
-        { "name": "Żarki" },
-        { "name": "Skotoússa" },
+        { "name": "Skotossa" },
+        { "name": "Skotoasassa" },
         { "name": "Cigintung" },
+        { "name": "Cigung" },
         { "name": "New York City" },
         { "name": "Depok" },
-        { "name": "Älvsbyn" },
+        { "name": "Dedaspok" },
         { "name": "Zhijiang" },
         { "name": "Kuala Lumpur" },
         { "name": "Loikaw" },
         { "name": "Sukarama" },
-        { "name": "Izra‘" },
-        { "name": "Emnambithi-Ladysmith" }]
-      );
+        { "name": "Emnambithi-Ladysmith" }]);
     });
 };
