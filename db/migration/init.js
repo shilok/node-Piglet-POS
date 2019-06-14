@@ -26,6 +26,7 @@ exports.up = function(knex, Promise) {
         table.increments()
         table.string('firstName').notNullable()
         table.string('lastName').notNullable()
+        table.string('email').notNullable()
         table.date('birthday').notNullable()
         table.date('hireDate').notNullable()
         table.integer('salaryTypeID').unsigned().references('id').inTable('SalaryType');  
