@@ -24,16 +24,16 @@ exports.up = function(knex, Promise) {
   
       .createTable('Employee', table =>{
         table.increments()
-        table.string('firstName', 15).notNullable()
-        table.string('lastName', 15).notNullable()
+        table.string('firstName').notNullable()
+        table.string('lastName').notNullable()
         table.date('birthday').notNullable()
         table.date('hireDate').notNullable()
         table.integer('salaryTypeID').unsigned().references('id').inTable('SalaryType');  
         table.integer('commissionTypeID').unsigned().references('id').inTable('CommissionType');  
-        table.string('country', 15).notNullable()
-        table.string('state', 2).notNullable()
-        table.string('city', 15).notNullable()
-        table.string('street', 25).notNullable()
+        table.string('country').notNullable()
+        table.string('state').notNullable()
+        table.string('city').notNullable()
+        table.string('street').notNullable()
         table.string('line1').notNullable()
         table.string('line2')
         table.string('image')
