@@ -6,6 +6,8 @@ exports.seed = function (knex, Promise) {
       // Inserts seed entries
       return knex('OrderDetailsStatus').insert(
         [{ "status": "Comm" },
+        { "status": "Hourly" },
+        { "status": "Hourly" },
         { "status": "Hourly" }
         ]
       );

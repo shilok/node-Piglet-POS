@@ -10,6 +10,9 @@ exports.seed = function (knex, Promise) {
         },
         {
           "status": "Hourly"
+        },
+        {
+          "status": "Hourly2"
         }
       ]);
     });

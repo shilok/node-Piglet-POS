@@ -11,6 +11,12 @@ exports.seed = function (knex, Promise) {
           },
           {
             "name": "OLD"
+          },
+          {
+            "name": "OLD"
+          },
+          {
+            "name": "OLD"
           }
         ]
       );
