@@ -4,6 +4,7 @@
   "description": "Piglet-POS",
   "main": "app.js",
   "scripts": {
+    "stop": "killall node",
     "start": "node app",
     "dev": "nodemon app"
   },
