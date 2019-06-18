@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/testing', require('./routes/crud/testing'))
 app.use('/api/testing', require('./routes/crud/customer'))
+app.use('/api/testing', require('./routes/crud/employee'))
 
 
 
