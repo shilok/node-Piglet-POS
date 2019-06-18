@@ -3,58 +3,6 @@ var router = express.Router()
 
 const knex = require('../../knex')
 
-
-
-
-const createEmail = (trx, email) => {
-    return trx('Email').insert({ address: email })
-}
-
-const createAddress = (trx, address) => {
-    return trx('Address').insert(address)
-}
-
-const createCustomer = (trx, customer) => {
-    return trx('Customer').insert(customer)
-}
-
-const createPhone = (trx, phone) => {
-    return trx('Phone').insert({ number: phone })
-}
-
-
-const createCustomerPhone = (trx, customerID, phoneID) => {
-    return trx('CustomerPhone').insert({ customerID: customerID, phoneID: phoneID })
-}
-
-const createCustomerEmail = (trx, customerID, emailID) => {
-    return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID })
-}
-
-const createCustomerAddress = (trx, customerID, addressID) => {
-    return trx('CustomerAddress').insert({ customerID: customerID, addressID: addressID })
-}
-
-// const customerEmail = {
-//     customerID: 0,
-//     emailID: 0
-// }
-
-// const customer = {
-//     firstName: 'shilo',
-//     lastName: 'kohelet',
-//     defaultAddressID: 0
-// }
-
-// const address = {
-//     country: "",
-//     state: "",
-//     city: "",
-//     street: "",
-//     line1: "",
-//     line2: null
-// }
-
 router.post('/createCustomer', (req, res) => {
 
     const email = { address: req.body.email }
