@@ -2,10 +2,9 @@ const express = require('express')
 const https = require('https')
 const fs = require('fs');
 
-const knex = require('./knex')
-
 const app = express()
 
+app.use(express.json())
 
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/piglet-pos.com/privkey.pem', 'utf8');
 const certificate = fs.readFileSync('/etc/letsencrypt/live/piglet-pos.com/cert.pem', 'utf8');
@@ -16,26 +15,20 @@ const credentials = {
 	cert: certificate,
 	ca: ca
 };
+const httpsServer = https.createServer(credentials, app);
 
-app.use(express.json())
+
 
 app.get('/', (req, res) => {
     
     res.send("Hey")
 })
 
-
-// app.use('/api/insert', require('./routes/crud/insert'))
-// app.use('/api/customer', require('./routes/crud/customer'))
-
-
 app.use('/api/testing', require('./routes/crud/testing'))
 
 
 
 const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {console.log(`HTTPS Server running on port ${PORT}`)})
 
-const httpsServer = https.createServer(credentials, app);
 
 httpsServer.listen(PORT, () => {console.log(`HTTPS Server running on port ${PORT}`)})
