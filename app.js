@@ -20,8 +20,7 @@ const httpsServer = https.createServer(credentials, app);
 
 
 app.get('/', (req, res) => {
-    
-    res.send("Hey")
+    res.send("Hey you")
 })
 
 app.use('/api/testing', require('./routes/crud/testing'))
