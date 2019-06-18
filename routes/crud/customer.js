@@ -26,7 +26,7 @@ router.post('/createCustomer', (req, res) => {
             })
         })
     }).then(() => {
-        res.send("OK")
+        res.status(201).send("OK")
     }).catch(error => {
         res.send(error)
     })
