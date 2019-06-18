@@ -5,7 +5,7 @@ const fs = require('fs');
 const knex = require('./knex')
 
 const app = express()
-//
+
 
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/piglet-pos.com/privkey.pem', 'utf8');
 const certificate = fs.readFileSync('/etc/letsencrypt/live/piglet-pos.com/cert.pem', 'utf8');
