@@ -32,40 +32,6 @@ router.post('/createCustomer', (req, res) => {
         console.log(`Error : ${error}`)
         res.send(error)
     })
-
-
-
-
-
-
-
-    // Using trx as a query builder:
-    // createAddress(address)
-
-    //   .then(addressID => {
-    //       customer.defaultAddressID = addressID
-    //     return knex('Customer').insert(customer)
-    // createCustomer(customer).then(data => {
-    //     console.log(`data is ${data}`)
-    // })
-    //   customer.defaultAddressID = emailID[0]
-    //   customerEmail.emailID = emailID[0]
-
-    //   createCustomer(customer)
-    //     .then(customerID => {
-    //         customerEmail.customerID = customerID[0]
-    //         createCustomerEmail()
-    //         res.send('OK')
-    //     })
-    // console.log(typeof(emailID) + ' new books saved. ' );
-    //   })
-    //   .catch(error => {
-    //       res.send(error)
-    //     // If we get here, that means that neither the 'Old Books' catalogues insert,
-    //     // nor any of the books inserts will have taken place.
-    //     console.error(error);
-    // })
-
 })
 
 
