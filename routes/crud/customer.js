@@ -29,7 +29,7 @@ knex.transaction(function(trx) {
       .insert({address: 'test4433'})
       .into('Email')
       .then(function(ids) {
-        return trx('CustomerEmail').insert({customerID: 1050, emailID: ids});
+        return trx('CustomerEmail').insert({customerID: 500, emailID: ids});
         });
   })
   .then(function(inserts) {
