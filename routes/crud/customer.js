@@ -25,11 +25,9 @@ router.post('/createCustomer', (req, res) => {
                 })
             })
         })
-    }).then(inserts => {
-        console.log(`Results : ${inserts}`)
+    }).then(() => {
         res.send("OK")
     }).catch(error => {
-        console.log(`Error : ${error}`)
         res.send(error)
     })
 })
