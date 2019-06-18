@@ -6,37 +6,22 @@ const knex = require('../../knex')
 
 
 
-function createCustomer(){
-
-    knex.transaction((trx) => {
-        return trx
-          .insert({address: 'test@test'})
-          .into('Email')
-          .then((ids) => {
-            console.log(`ids - : ${ids}`)
-            });
-          })
-      .then((inserts) => {
-        console.log(inserts.length + ' new books saved.');
-      })
-      .catch((error) => {
-        console.error(`Error - : ${error}`);
-      });
-
-    
+const createCustomerEmail = (trx, email) => {
+    return trx.insert({address: email}).into('Email')
 }
 
 router.post('/email', (req, res) => {
+    let emailID = 0
+    let phoneID = 0
+    let customerID = 0
+
     knex.transaction((trx) => {
-        return trx
-          .insert({address: 'test@test'})
-          .into('Email')
+        createCustomerEmail(trx, "test123@test.com")
           .then((ids) => {
             console.log(`ids - : ${ids}`)
             });
           })
       .then((inserts) => {
-          res.send(`ids is - : ${ids}`)
         console.log(inserts.length + ' new books saved.');
       })
       .catch((error) => {
