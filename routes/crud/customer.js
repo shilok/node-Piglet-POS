@@ -25,15 +25,12 @@ router.post('/email', (req, res) => {
 
     // Using trx as a query builder:
 knex.transaction(function(trx) {
-
-  
     return trx
       .insert({address: 'test4433'})
       .into('Email')
       .then(function(ids) {
         return trx('CustomerEmail').insert({customerID: 1050, emailID: ids});
         });
-      });
   })
   .then(function(inserts) {
       res.send('OK')
@@ -44,6 +41,8 @@ knex.transaction(function(trx) {
     // If we get here, that means that neither the 'Old Books' catalogues insert,
     // nor any of the books inserts will have taken place.
     console.error(error);
+})
+
 })
 
 
