@@ -17,7 +17,7 @@ router.post('/createCustomer', (req, res) => {
                 return trx('Phone').insert(phoneNumber).then(phoneID => {
                     return trx('Customer').insert(customer).then(customerID => {
                         return trx('CustomerAddress').insert({ customerID: customerID, addressID: addressID }).then(() => {
-                            return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID }).then((id) => {
+                            return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID }).then(() => {
                                 return trx('CustomerPhone').insert({ customerID: customerID, phoneID: phoneID })
                             })
                         })
