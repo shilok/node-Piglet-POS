@@ -23,19 +23,27 @@ router.post('/email', (req, res) => {
     let phoneID = 0
     let customerID = 0
 
-    knex.transaction((trx) => {
-        createEmail(trx, "test123@test.com")
-          .then((emailID) => {
-            createCustomerEmail(trx, 2222, emailID)
-            });
-          })
-      .then((inserts) => {
-        console.log(inserts +  ' new books saved.');
-      })
-      .catch((error) => {
-          res.send(error)
-        console.error(`Error - : ${error}`);
+    // Using trx as a query builder:
+knex.transaction(function(trx) {
+
+  
+    return trx
+      .insert({address: 'test4433'})
+      .into('Email')
+      .then(function(ids) {
+        return trx('CustomerEmail').insert({customerID: 1050, emailID: ids});
+        });
       });
+  })
+  .then(function(inserts) {
+      res.send('OK')
+    console.log(inserts.length + ' new books saved.');
+  })
+  .catch(function(error) {
+      res.send(error)
+    // If we get here, that means that neither the 'Old Books' catalogues insert,
+    // nor any of the books inserts will have taken place.
+    console.error(error);
 })
 
 
