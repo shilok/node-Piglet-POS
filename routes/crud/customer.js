@@ -7,41 +7,116 @@ const knex = require('../../knex')
 
 
 const createEmail = (trx, email) => {
-    return trx.insert({address: email}).into('Email')
+    return trx('Email').insert({ address: email })
+}
+
+const createAddress = (trx, address) => {
+    return trx('Address').insert(address)
+}
+
+const createCustomer = (trx, customer) => {
+    return trx('Customer').insert(customer)
+}
+
+const createPhone = (trx, phone) => {
+    return trx('Phone').insert({ number: phone })
+}
+
+
+const createCustomerPhone = (trx, customerID, phoneID) => {
+    return trx('CustomerPhone').insert({ customerID: customerID, phoneID: phoneID })
 }
 
 const createCustomerEmail = (trx, customerID, emailID) => {
-    return trx.insert({customerID: customerID, emailID: emailID}).into('CustomerEmail')
+    return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID })
 }
 
-const createCustomerPhone = (trx, phone) => {
-    return trx.insert({number: phone}).into('Phone')
+const createCustomerAddress = (trx, customerID, addressID) => {
+    return trx('CustomerAddress').insert({ customerID: customerID, addressID: addressID })
 }
 
-router.post('/email', (req, res) => {
-    let emailID = 0
-    let phoneID = 0
-    let customerID = 0
+// const customerEmail = {
+//     customerID: 0,
+//     emailID: 0
+// }
+
+// const customer = {
+//     firstName: 'shilo',
+//     lastName: 'kohelet',
+//     defaultAddressID: 0
+// }
+
+// const address = {
+//     country: "",
+//     state: "",
+//     city: "",
+//     street: "",
+//     line1: "",
+//     line2: null
+// }
+
+router.post('/createCustomer', (req, res) => {
+
+    const email = { address: req.body.email }
+    const phoneNumber = { number: req.body.phoneNumber }
+    const address = req.body.address
+    const customer = req.body.customer
+
+    knex.transaction(trx => {
+        return trx('Address').insert(address).then(addressID => {
+            return trx('Email').insert(email).then(emailID => {
+                customer.defaultAddressID = addressID
+                return trx('Phone').insert(phoneNumber).then(phoneID => {
+                    return trx('Customer').insert(customer).then(customerID => {
+                        return trx('CustomerAddress').insert({ customerID: customerID, addressID: addressID }).then(() => {
+                            return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID }).then((id) => {
+                                return trx('CustomerPhone').insert({ customerID: customerID, phoneID: phoneID })
+                            })
+                        })
+                    })
+                })
+            })
+        })
+    }).then(inserts => {
+        console.log(`Results : ${inserts}`)
+        res.send("OK")
+    }).catch(error => {
+        console.log(`Error : ${error}`)
+        res.send(error)
+    })
+
+
+
+
+
+
 
     // Using trx as a query builder:
-knex.transaction(function(trx) {
-    return trx
-      .insert({address: 'test4433'})
-      .into('Email')
-      .then(function(ids) {
-        return trx('CustomerEmail').insert({customerID: 500, emailID: ids});
-        });
-  })
-  .then(function(inserts) {
-      res.send('OK')
-    console.log(inserts.length + ' new books saved.');
-  })
-  .catch(function(error) {
-      res.send(error)
-    // If we get here, that means that neither the 'Old Books' catalogues insert,
-    // nor any of the books inserts will have taken place.
-    console.error(error);
-})
+    // createAddress(address)
+
+    //   .then(addressID => {
+    //       customer.defaultAddressID = addressID
+    //     return knex('Customer').insert(customer)
+    // createCustomer(customer).then(data => {
+    //     console.log(`data is ${data}`)
+    // })
+    //   customer.defaultAddressID = emailID[0]
+    //   customerEmail.emailID = emailID[0]
+
+    //   createCustomer(customer)
+    //     .then(customerID => {
+    //         customerEmail.customerID = customerID[0]
+    //         createCustomerEmail()
+    //         res.send('OK')
+    //     })
+    // console.log(typeof(emailID) + ' new books saved. ' );
+    //   })
+    //   .catch(error => {
+    //       res.send(error)
+    //     // If we get here, that means that neither the 'Old Books' catalogues insert,
+    //     // nor any of the books inserts will have taken place.
+    //     console.error(error);
+    // })
 
 })
 
