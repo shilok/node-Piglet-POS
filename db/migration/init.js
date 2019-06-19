@@ -146,12 +146,14 @@ exports.up = function (knex, Promise) {
       table.increments()
       table.integer('customerID').unsigned().references('id').inTable('Customer');
       table.integer('employeeID').unsigned().references('id').inTable('Employee');
-      table.integer('statusID').unsigned().references('id').inTable('OrderStatus');
+      table.integer('statusID').unsigned().references('id').inTable('OrderStatus').defaultTo(1);
       table.integer('paymentTypeID').unsigned().references('id').inTable('Payment');
       table.integer('shipperID').unsigned().references('id').inTable('Shipper');
       table.integer('shipAddressID').unsigned().references('id').inTable('Address');
       table.decimal('taxRate', 19, 4)
+      table.decimal('shippingPrice', 19, 4)
       table.string('notes')
+      table.string('trackingNumber')
       table.timestamp('createdDate').defaultTo(knex.fn.now())
       table.timestamp('modifiedDate').defaultTo(knex.fn.now())
     })
@@ -171,6 +173,7 @@ exports.up = function (knex, Promise) {
       table.increments()
       table.integer('orderID').unsigned().references('id').inTable('Order');
       table.integer('productID').unsigned().references('id').inTable('Product');
+      table.integer('inventoryID').unsigned().references('id').inTable('Inventory');
       table.integer('orderDetailsStatusID').unsigned().references('id').inTable('OrderDetailsStatus');
       table.integer('quantity').notNullable()
       table.decimal('price', 19, 4)

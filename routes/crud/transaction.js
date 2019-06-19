@@ -40,6 +40,16 @@ router.post('/addProductToOrder', (req, res) => {
     })
 })
 
+router.post('/closeOrder', (req, res) => {
+    const orderID = req.body.orderID
+    
+    knex('Order').where('id', orderID).update({statusID: 2}).then(result => {
+        res.send(result)
+    }).catch(error => {
+        res.send(error)
+    })
+})
+
 
 
 
