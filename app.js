@@ -13,6 +13,7 @@ app.use(express.json())
 app.use('/api/testing', require('./routes/crud/testing'))
 app.use('/api/testing', require('./routes/crud/customer'))
 app.use('/api/testing', require('./routes/crud/employee'))
+app.use('/api/testing', require('./routes/crud/transaction'))
 
 
 httpsServer.listen(PORT, () => {console.log(`HTTPS Server running on port ${PORT}`)})
