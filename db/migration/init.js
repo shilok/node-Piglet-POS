@@ -1,7 +1,18 @@
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable('Location', table =>{
+  return knex.schema
+  .createTable('Address', table =>{
+    table.increments()
+    table.string('country').notNullable()
+    table.string('state').notNullable()
+    table.string('city').notNullable()
+    table.string('street').notNullable()
+    table.string('line1').notNullable()
+    table.string('line2')
+  })
+  .createTable('Location', table =>{
       table.increments();
       table.string('name').notNullable()
+      table.integer('addressID').unsigned().references('id').inTable('Address');  
   })
   .createTable('Inventory', table =>{
     table.increments()
@@ -78,15 +89,7 @@ exports.up = function(knex, Promise) {
       table.string('url').notNullable()
       table.string('description')
     })
-    .createTable('Address', table =>{
-      table.increments()
-      table.string('country').notNullable()
-      table.string('state').notNullable()
-      table.string('city').notNullable()
-      table.string('street').notNullable()
-      table.string('line1').notNullable()
-      table.string('line2')
-    })
+
     .createTable('Phone', table =>{
       table.increments()
       table.string('number').notNullable()
@@ -214,7 +217,6 @@ exports.down = function (knex, Promise) {
   .dropTable('Customer')
   .dropTable('Email')
   .dropTable('Phone')
-  .dropTable('Address')
   .dropTable('Image')
   .dropTable('DailySalary')
   .dropTable('Break')
@@ -227,5 +229,6 @@ exports.down = function (knex, Promise) {
   .dropTable('Store')
   .dropTable('Inventory')
   .dropTable('Location')
+  .dropTable('Address')
 };
 //
