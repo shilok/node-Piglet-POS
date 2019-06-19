@@ -7,16 +7,16 @@ exports.seed = function (knex, Promise) {
       return knex('OrderStatus').insert(
         [
           {
-            "name": "Progress"
+            "status": "Progress"
           },
           {
-            "name": "OLD"
+            "status": "OLD"
           },
           {
-            "name": "OLD"
+            "status": "OLD"
           },
           {
-            "name": "OLD"
+            "status": "OLD"
           }
         ]
       );
