@@ -66,12 +66,12 @@ exports.up = function (knex, Promise) {
       table.increments()
       table.string('name').notNullable()
       table.string('description').notNullable()
-      table.integer('minPrice')
-      table.integer('displayPrice')
-      table.integer('height')
-      table.integer('width')
-      table.integer('length')
-      table.integer('weight')
+      table.double('minPrice')
+      table.double('displayPrice')
+      table.double('height')
+      table.double('width')
+      table.double('length')
+      table.double('weight')
       table.integer('supplierID').unsigned().references('id').inTable('Supplier');
     })
 
@@ -137,17 +137,24 @@ exports.up = function (knex, Promise) {
       table.string('trackingURL').notNullable()
     })
 
+    .createTable('Payment', table => {
+      table.increments()
+      table.string('type').notNullable()
+    })
 
     .createTable('Order', table => {
       table.increments()
       table.integer('customerID').unsigned().references('id').inTable('Customer');
       table.integer('employeeID').unsigned().references('id').inTable('Employee');
       table.integer('statusID').unsigned().references('id').inTable('OrderStatus');
+      table.integer('paymentTypeID').unsigned().references('id').inTable('Payment');
       table.integer('shipperID').unsigned().references('id').inTable('Shipper');
       table.integer('shipAddressID').unsigned().references('id').inTable('Address');
+      table.decimal('taxes', 19, 4)
+      table.decimal('taxRate', 19, 4)
       table.string('notes')
-      table.timestamp('createdAt').defaultTo(knex.fn.now())
-      table.timestamp('updatedAt').defaultTo(knex.fn.now())
+      table.timestamp('createdDate').defaultTo(knex.fn.now())
+      table.timestamp('modifiedDate').defaultTo(knex.fn.now())
     })
 
     .createTable('OrderDetails', table => {
@@ -238,6 +245,7 @@ exports.down = function (knex, Promise) {
     .dropTable('Tag')
     .dropTable('OrderDetails')
     .dropTable('Order')
+    .dropTable('Payment')
     .dropTable('Shipper')
     .dropTable('OrderDetailsStatus')
     .dropTable('OrderStatus')
