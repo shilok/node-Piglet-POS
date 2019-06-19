@@ -5,10 +5,10 @@ exports.seed = function (knex, Promise) {
     .then(function () {
       // Inserts seed entries
       return knex('OrderDetailsStatus').insert(
-        [{ "status": "Comm" },
-        { "status": "Hourly" },
-        { "status": "Hourly" },
-        { "status": "Hourly" }
+        [
+          { "status": "inStock" },
+          { "status": "inOrder" },
+          { "status": "not available" }
         ]
       );
     });

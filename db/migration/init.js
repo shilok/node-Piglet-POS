@@ -150,12 +150,22 @@ exports.up = function (knex, Promise) {
       table.integer('paymentTypeID').unsigned().references('id').inTable('Payment');
       table.integer('shipperID').unsigned().references('id').inTable('Shipper');
       table.integer('shipAddressID').unsigned().references('id').inTable('Address');
-      table.decimal('taxes', 19, 4)
       table.decimal('taxRate', 19, 4)
       table.string('notes')
       table.timestamp('createdDate').defaultTo(knex.fn.now())
       table.timestamp('modifiedDate').defaultTo(knex.fn.now())
     })
+
+    .createTable('Invoice', table => {
+      table.increments()
+      table.integer('orderID').unsigned().references('id').inTable('Order');
+      table.decimal('taxes', 19, 4)
+      table.decimal('totalPrice', 19, 4)
+      table.string('notes')
+      table.timestamp('createdDate').defaultTo(knex.fn.now())
+      table.timestamp('modifiedDate').defaultTo(knex.fn.now())
+    })
+
 
     .createTable('OrderDetails', table => {
       table.increments()
@@ -163,8 +173,8 @@ exports.up = function (knex, Promise) {
       table.integer('productID').unsigned().references('id').inTable('Product');
       table.integer('orderDetailsStatusID').unsigned().references('id').inTable('OrderDetailsStatus');
       table.integer('quantity').notNullable()
-      table.float('discount')
-      table.float('price').notNullable()
+      table.decimal('price', 19, 4)
+      table.decimal('discount', 19, 4).defaultTo(0)
     })
     .createTable('Tag', table => {
       table.increments()
@@ -185,6 +195,7 @@ exports.up = function (knex, Promise) {
       table.integer('productID').unsigned().references('id').inTable('Product');
       table.integer('quantity');
     })
+
 
     .createTable('ProductTag', table => {
       table.integer('tagID').unsigned().references('id').inTable('Tag');
@@ -244,6 +255,7 @@ exports.down = function (knex, Promise) {
     .dropTable('Permission')
     .dropTable('Tag')
     .dropTable('OrderDetails')
+    .dropTable('Invoice')
     .dropTable('Order')
     .dropTable('Payment')
     .dropTable('Shipper')
