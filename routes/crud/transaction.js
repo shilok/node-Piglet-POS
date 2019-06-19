@@ -42,12 +42,28 @@ router.post('/addProductToOrder', (req, res) => {
 
 router.post('/closeOrder', (req, res) => {
     const orderID = req.body.orderID
-    
-    knex('Order').where('id', orderID).update({statusID: 2}).then(result => {
-        res.send(result)
+    let price = 0
+
+    knex.transaction(trx => {
+        // return trx('Order').where('id', orderID).update({statusID: 2}).then(() => {
+            return trx({od: 'OrderDetails', o: 'Order'})
+                        .select('od.price', 'od.discount', 'o.taxRate')
+                        .where({'od.orderID': orderID, 'o.id': orderID}).then(products => {
+                products.forEach(p => {
+                    console.log(p)
+                    // price += (p.price - p.discount)
+                });
+            })
+        // })
+
+    }).then(result => {
+        res.send("OK")
     }).catch(error => {
         res.send(error)
+        console.log(error)
     })
+
+
 })
 
 
