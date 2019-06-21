@@ -13,6 +13,7 @@ router.post('/createOrder', (req, res) => {
     })
 })
 
+
 router.post('/addProductToOrder', (req, res) => {
 
     const quantity = req.body.quantity
@@ -43,23 +44,31 @@ router.post('/addProductToOrder', (req, res) => {
 router.post('/closeOrder', (req, res) => {
     const orderID = req.body.orderID
     let price = 0
+    let taxes = 0
 
     knex.transaction(trx => {
-        // return trx('Order').where('id', orderID).update({statusID: 2}).then(() => {
-            return trx({od: 'OrderDetails', o: 'Order'})
-                        .select('od.price', 'od.discount', 'o.taxRate')
-                        .where({'od.orderID': orderID, 'o.id': orderID}).then(products => {
-                products.forEach(p => {
-                    console.log(p)
-                    // price += (p.price - p.discount)
-                });
-            })
-        // })
+        return trx('Order').where('id', orderID).andWhereNot('statusID', 2).update({ statusID: 2 }).then((result) => {
+            if (result == 1) {
+                res.status(202)
+                return trx({ od: 'OrderDetails', o: 'Order' })
+                    .select('od.price', 'od.discount', 'o.taxRate')
+                    .where({ 'od.orderID': orderID, 'o.id': orderID })
+                    .then(products => {
+                        products.forEach(p => {
+                            price += (p.price - p.discount)
+                            taxes += ((p.price - p.discount) * p.taxRate)
+                        })
+                        const invoice = { orderID: orderID, taxes: taxes, totalPrice: price }
+                        return trx('Invoice').insert(invoice)
+                    })
+            } else { res.status(204) }
+
+        })
 
     }).then(result => {
         res.send("OK")
     }).catch(error => {
-        res.send(error)
+        res.status(400).send(error)
         console.log(error)
     })
 
