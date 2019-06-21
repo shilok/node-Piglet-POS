@@ -14,32 +14,67 @@ router.post('/createOrder', (req, res) => {
 })
 
 
+
 router.post('/addProductToOrder', (req, res) => {
 
-    const quantity = req.body.quantity
-    const inventoryID = req.body.inventoryID
+    const orderID = req.body.orderID
     const productID = req.body.productID
+    const quantity = req.body.quantity
+    const price = req.body.price
+    const discount = req.body.discount
+    const orderDetailsStatusID = req.body.orderDetailsStatusID
 
-    let productAvailable = false
+    let discountApproval = false
+
+    const orderDetails = { orderID: orderID, productID: productID, quantity: quantity, price: price, discount: discount, orderDetailsStatusID: orderDetailsStatusID }
 
     knex.transaction(trx => {
-        return trx('InventoryProduct').first('quantity')
-            .where({ inventoryID: inventoryID, productID: productID }).then((result) => {
-                if (result.quantity >= quantity) {
-                    productAvailable = true
-                    return trx('InventoryProduct').decrement('quantity', quantity)
+        return trx('Product').first()
+            .where('id', productID)
+            .then((result) => {
+                if (result.minPrice <= price / quantity) {
+                    discountApproval = true
+                    return trx('OrderDetails').insert(orderDetails).then(() => {
+                        if (orderDetailsStatusID == 1) {
+                            return trx('InventoryProduct').decrement('quantity', quantity)
+                        }
+                    })
                 }
             })
     }).then(() => {
-        if (productAvailable) {
+        if (discountApproval) {
             res.status(201).send('Success')
         } else {
-            res.status(202).send('Missing in Inventory')
+            res.status(203).send('Price not approved')
         }
     }).catch(error => {
+        console.log(error)
         res.status(400).send(error)
     })
 })
+
+router.post('/checkAvailability', (req, res) => {
+    const inventoryID = req.body.inventoryID
+    const productID = req.body.productID
+    const quantity = req.body.quantity
+
+    knex('InventoryProduct').first()
+        .where({ 'inventoryID': inventoryID, 'productID': productID })
+        .then(result => {
+            console.log(`result.quantity: ${result.quantity}`)
+            console.log(`quantity: ${quantity}`)
+            if (quantity > result.quantity) {
+                res.status(202).send('Missing in stock')
+            } else {
+                res.status(202).send('In Stock')
+            }
+        }).catch(error => {
+            res.status(400).send(error)
+        })
+
+})
+
+
 
 router.post('/closeOrder', (req, res) => {
     const orderID = req.body.orderID
