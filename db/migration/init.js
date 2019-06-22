@@ -241,10 +241,21 @@ exports.up = function (knex, Promise) {
       table.integer('customerID').unsigned().references('id').inTable('Customer');
     })
 
+    .createTable('oauth_tokens', table => {
+      table.increments()
+      table.string('access_token')
+      table.string('access_token_expires_on')
+      table.string('client_id')
+      table.string('refresh_token')
+      table.string('refresh_token_expires_on')
+      table.string('user_id')
+    })
+
 
 };
 exports.down = function (knex, Promise) {
   return knex.schema
+    .dropTable('oauth_tokens')
     .dropTable('CustomerPhone')
     .dropTable('CustomerAddress')
     .dropTable('CustomerEmail')
