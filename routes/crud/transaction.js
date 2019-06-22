@@ -17,26 +17,29 @@ router.post('/createOrder', (req, res) => {
 
 router.post('/addProductToOrder', (req, res) => {
 
-    const orderID = req.body.orderID
-    const productID = req.body.productID
-    const quantity = req.body.quantity
-    const price = req.body.price
-    const discount = req.body.discount
-    const orderDetailsStatusID = req.body.orderDetailsStatusID
+    const orderDetails = {
+        orderID: req.body.orderID,
+        productID: req.body.productID,
+        inventoryID: req.body.inventoryID,
+        quantity: req.body.quantity,
+        price: req.body.price,
+        discount: req.body.discount,
+        orderDetailsStatusID: req.body.orderDetailsStatusID
+    }
+
 
     let discountApproval = false
 
-    const orderDetails = { orderID: orderID, productID: productID, quantity: quantity, price: price, discount: discount, orderDetailsStatusID: orderDetailsStatusID }
 
     knex.transaction(trx => {
         return trx('Product').first()
-            .where('id', productID)
+            .where('id', orderDetails.productID)
             .then((result) => {
-                if (result.minPrice <= price / quantity) {
+                if (result.minPrice <= orderDetails.price / orderDetails.quantity) {
                     discountApproval = true
                     return trx('OrderDetails').insert(orderDetails).then(() => {
-                        if (orderDetailsStatusID == 1) {
-                            return trx('InventoryProduct').decrement('quantity', quantity)
+                        if (orderDetails.orderDetailsStatusID == 1) {
+                            return trx('InventoryProduct').decrement('quantity', orderDetails.quantity)
                         }
                     })
                 }
@@ -61,8 +64,6 @@ router.post('/checkAvailability', (req, res) => {
     knex('InventoryProduct').first()
         .where({ 'inventoryID': inventoryID, 'productID': productID })
         .then(result => {
-            console.log(`result.quantity: ${result.quantity}`)
-            console.log(`quantity: ${quantity}`)
             if (quantity > result.quantity) {
                 res.status(202).send('Missing in stock')
             } else {
@@ -100,7 +101,7 @@ router.post('/closeOrder', (req, res) => {
 
         })
 
-    }).then(result => {
+    }).then(() => {
         res.send("OK")
     }).catch(error => {
         res.status(400).send(error)
@@ -108,6 +109,22 @@ router.post('/closeOrder', (req, res) => {
     })
 
 
+})
+
+router.post('/cancelOrder', (req, res) => {
+    const orderID = req.body.orderID
+
+    knex({od: 'OrderDetails'})
+        .where(build => {
+            build.where('od.orderID', orderID).andWhere('od.orderDetailsStatusID', 1)
+        })
+        .join({ip: 'InventoryProduct'}, function () {
+            this.on('ip.productID', 'od.productID').andOn('ip.inventoryID', 'od.inventoryID')
+        })
+        .update({'ip.quantity': knex.raw('?? + ??', ['ip.quantity', 'od.quantity'])})
+    .then(result => {
+        res.sendStatus(202)
+    }).catch(err => {res.send(err)})
 })
 
 
