@@ -174,7 +174,7 @@ exports.up = function (knex, Promise) {
       table.integer('orderID').unsigned().references('id').inTable('Order');
       table.integer('productID').unsigned().references('id').inTable('Product');
       table.integer('inventoryID').unsigned().references('id').inTable('Inventory');
-      table.integer('orderDetailsStatusID').unsigned().references('id').inTable('OrderDetailsStatus');
+      table.integer('statusID').unsigned().references('id').inTable('OrderDetailsStatus');
       table.integer('quantity').notNullable()
       table.decimal('price', 19, 4)
       table.decimal('discount', 19, 4).defaultTo(0)
