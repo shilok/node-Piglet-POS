@@ -77,7 +77,7 @@ router.post('/checkAvailability', (req, res) => {
 
 
 
-router.post('/closeOrder', (req, res) => {
+router.post('/submitOrder', (req, res) => {
     const orderID = req.body.orderID
     let price = 0
     let taxes = 0
