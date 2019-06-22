@@ -242,7 +242,6 @@ exports.up = function (knex, Promise) {
     })
 
     .createTable('oauth_tokens', table => {
-      table.increments()
       table.string('access_token')
       table.string('access_token_expires_on')
       table.string('client_id')
@@ -250,13 +249,30 @@ exports.up = function (knex, Promise) {
       table.string('refresh_token_expires_on')
       table.string('user_id')
     })
+    .createTable('oauth_clients', table => {
+      table.string('client_id')
+      table.string('client_secret')
+      table.string('redirect_uri')
+      table.string('refresh_token')
+      table.string('refresh_token_expires_on')
+      table.string('user_id')
+    })
+
+    .createTable('users', table => {
+      table.increments()
+      table.string('username')
+      table.string('password')
+    })
+    
 
 
 };
 exports.down = function (knex, Promise) {
   return knex.schema
-    .dropTable('oauth_tokens')
-    .dropTable('CustomerPhone')
+  .dropTable('users')
+  .dropTable('oauth_clients')
+  .dropTable('oauth_tokens')
+  .dropTable('CustomerPhone')
     .dropTable('CustomerAddress')
     .dropTable('CustomerEmail')
     .dropTable('EmployeePermission')
