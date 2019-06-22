@@ -24,7 +24,7 @@ router.post('/addProductToOrder', (req, res) => {
         quantity: req.body.quantity,
         price: req.body.price,
         discount: req.body.discount,
-        orderDetailsStatusID: req.body.orderDetailsStatusID
+        statusID: req.body.statusID
     }
 
 
@@ -38,7 +38,7 @@ router.post('/addProductToOrder', (req, res) => {
                 if (result.minPrice <= orderDetails.price / orderDetails.quantity) {
                     discountApproval = true
                     return trx('OrderDetails').insert(orderDetails).then(() => {
-                        if (orderDetails.orderDetailsStatusID == 1) {
+                        if (orderDetails.statusID == 1) {
                             return trx('InventoryProduct').decrement('quantity', orderDetails.quantity)
                         }
                     })
@@ -116,7 +116,7 @@ router.post('/cancelOrder', (req, res) => {
 
     knex({od: 'OrderDetails'})
         .where(build => {
-            build.where('od.orderID', orderID).andWhere('od.orderDetailsStatusID', 1)
+            build.where('od.orderID', orderID).andWhere('od.statusID', 1)
         })
         .join({ip: 'InventoryProduct'}, function () {
             this.on('ip.productID', 'od.productID').andOn('ip.inventoryID', 'od.inventoryID')
