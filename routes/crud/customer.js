@@ -32,5 +32,18 @@ router.post('/createCustomer', (req, res) => {
     })
 })
 
+router.post('/addEmail', (req, res) => {
+    const customerID = req.body.customerID
+    const email = { email: req.body.email }
+
+    knex.transaction(trx => {
+        return trx('Email').insert(email).then(emailID => {
+            return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID })
+        })
+    })
+        .then(data => { res.sendStatus(202) })
+        .catch(err => { res.sendStatus(400) })
+})
+
 
 module.exports = router

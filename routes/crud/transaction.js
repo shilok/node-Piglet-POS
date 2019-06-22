@@ -73,24 +73,24 @@ router.post('/addProductToOrder', (req, res) => {
     })
 })
 
-// router.post('/checkAvailability', (req, res) => {
-//     const inventoryID = req.body.inventoryID
-//     const productID = req.body.productID
-//     const quantity = req.body.quantity
+router.post('/checkAvailability', (req, res) => {
+    const inventoryID = req.body.inventoryID
+    const productID = req.body.productID
+    const quantity = req.body.quantity
 
-//     knex('InventoryProduct').first()
-//         .where({ 'inventoryID': inventoryID, 'productID': productID })
-//         .then(result => {
-//             if (quantity > result.quantity) {
-//                 res.status(202).send('Missing in stock')
-//             } else {
-//                 res.status(202).send('In Stock')
-//             }
-//         }).catch(error => {
-//             res.status(400).send(error)
-//         })
+    knex('InventoryProduct').first()
+        .where({ 'inventoryID': inventoryID, 'productID': productID })
+        .then(result => {
+            if (quantity > result.quantity) {
+                res.status(202).send('Missing in stock')
+            } else {
+                res.status(202).send('In Stock')
+            }
+        }).catch(error => {
+            res.status(400).send(error)
+        })
 
-// })
+})
 
 
 
