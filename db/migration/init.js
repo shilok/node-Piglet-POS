@@ -241,38 +241,19 @@ exports.up = function (knex, Promise) {
       table.integer('customerID').unsigned().references('id').inTable('Customer');
     })
 
-    .createTable('oauth_tokens', table => {
-      table.string('access_token')
-      table.string('access_token_expires_on')
-      table.string('client_id')
-      table.string('refresh_token')
-      table.string('refresh_token_expires_on')
-      table.string('user_id')
-    })
-    .createTable('oauth_clients', table => {
-      table.string('client_id')
-      table.string('client_secret')
-      table.string('redirect_uri')
-      table.string('refresh_token')
-      table.string('refresh_token_expires_on')
-      table.string('user_id')
+    .createTable('EmpAuth', table => {
+      table.integer('employeeID').unsigned().references('id').inTable('Employee');
+      table.string('hash')
+      table.boolean('isActive')
     })
 
-    .createTable('users', table => {
-      table.increments()
-      table.string('username')
-      table.string('password')
-    })
-    
 
 
 };
 exports.down = function (knex, Promise) {
   return knex.schema
-  .dropTable('users')
-  .dropTable('oauth_clients')
-  .dropTable('oauth_tokens')
-  .dropTable('CustomerPhone')
+    .dropTable('EmpAuth')
+    .dropTable('CustomerPhone')
     .dropTable('CustomerAddress')
     .dropTable('CustomerEmail')
     .dropTable('EmployeePermission')

@@ -11,9 +11,14 @@
   "author": "Shilo Kohelet",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-oauth-server": "^2.0.0",
     "knex": "^0.17.6",
     "mysql": "^2.17.1",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0"
   }
 }
