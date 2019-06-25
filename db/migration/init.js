@@ -39,18 +39,21 @@ exports.up = function (knex, Promise) {
       table.string('firstName').notNullable()
       table.string('lastName').notNullable()
       table.string('email').notNullable()
-      table.date('birthday').notNullable()
-      table.date('hireDate').notNullable()
+      table.date('birthday')
+      table.date('hireDate')
       table.integer('salaryTypeID').unsigned().references('id').inTable('SalaryType');
       table.integer('commissionTypeID').unsigned().references('id').inTable('CommissionType');
-      table.string('country').notNullable()
-      table.string('state').notNullable()
-      table.string('city').notNullable()
-      table.string('street').notNullable()
-      table.string('line1').notNullable()
+      table.string('country')
+      table.string('state')
+      table.string('city')
+      table.string('street')
+      table.string('line1')
       table.string('line2')
       table.string('image')
       table.string('notes')
+      table.string('hash')
+      table.boolean('isActive').defaultTo(true)
+
     })
 
 
@@ -241,18 +244,12 @@ exports.up = function (knex, Promise) {
       table.integer('customerID').unsigned().references('id').inTable('Customer');
     })
 
-    .createTable('EmpAuth', table => {
-      table.integer('employeeID').unsigned().references('id').inTable('Employee');
-      table.string('hash')
-      table.boolean('isActive')
-    })
 
 
 
 };
 exports.down = function (knex, Promise) {
   return knex.schema
-    .dropTable('EmpAuth')
     .dropTable('CustomerPhone')
     .dropTable('CustomerAddress')
     .dropTable('CustomerEmail')

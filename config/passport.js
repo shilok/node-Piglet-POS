@@ -8,9 +8,8 @@
      opts.secretOrKey = 'secret'
 
      passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
-
-         User.getEmpByID(jwt_payload.employeeID, emp => {
-             if (emp){
+         User.getEmpByID(jwt_payload.id, emp => {
+             if (emp && emp.isActive){
                  return done(null, emp)
              }else{
                  return done(null, false)

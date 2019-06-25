@@ -1,5 +1,6 @@
 var express = require('express')
 var router = express.Router()
+const passport = require('passport')
 
 const knex = require('../../knex')
 
@@ -36,43 +37,44 @@ const setEmployeeToJson = (emp, data) => {
 }
 
 
+router.post('/getProductsByEmployeeID', passport.authenticate('jwt', { session: false }), (req, res) => {
 
-
-
-router.post('/getProducts', (req, res) => {
-    const empID = req.body.empID
+    const empID = req.user.id
+    console.log(req.user.id)
     const emp = {}
     let stockID = 0
+
+    console.log(req.user.id)
 
     const jsonData = { employee: {}, products: [] }
 
     getEmployeeStores(empID).then(stores => {
-        if (stores.length > 1) {
-            res.send('More than one')
-        } else if (stores.length == 1) {
-            setEmployeeToJson(emp, stores)
-            jsonData.employee = emp
-            stockID = stores[0].stockInventoryID
-            getInventoryProducts(stockID).then(products => {
-                products.forEach(p => {
-                    const product = {
-                        name: p.name,
-                        description: p.description,
-                        minPrice: p.minPrice,
-                        displayPrice: p.displayPrice,
-                        quantity: p.quantity,
-                        stockID: p.inventoryID,
-                        productID: p.productID
-                    }
-                    jsonData.products.push(product)
-                });
-                res.send(jsonData)
-                console.log(jsonData)
-            })
-
-        } else {
-            res.send('Employee not connected to any Store')
+        if (!stores) {
+            return res.send('Employee not connected to any Store')
         }
+        if (stores.length > 1) {
+            return res.send('More than one')
+        }
+
+        setEmployeeToJson(emp, stores)
+        jsonData.employee = emp
+        stockID = stores[0].stockInventoryID
+
+        getInventoryProducts(stockID).then(products => {
+            products.forEach(p => {
+                const product = {
+                    name: p.name,
+                    description: p.description,
+                    minPrice: p.minPrice,
+                    displayPrice: p.displayPrice,
+                    quantity: p.quantity,
+                    stockID: p.inventoryID,
+                    productID: p.productID
+                }
+                jsonData.products.push(product)
+            });
+            res.send(jsonData)
+        })
     })
 })
 
