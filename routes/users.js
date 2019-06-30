@@ -40,18 +40,14 @@ router.post('/register', (req, res, next) => {
 
 router.get('/authenticate', (req, res, next) => {
     const emp = JSON.parse(req.query.emp)
-    const token = jwt.sign(emp, 'secret', {
+    const employee = {id: emp.id, firstName: emp.firstName, lastName: emp.lastName}
+    const token = jwt.sign(employee, 'secret', {
         expiresIn: 604800,
     })
     res.json({
         success: true,
         token: 'JWT ' + token,
-        emp: {
-            firstName: emp.firstName,
-            lastName: emp.lastName,
-            employeeID: emp.id,
-            isActive: emp.isActive
-        }
+        emp: employee
     })
 
 
@@ -61,6 +57,8 @@ router.get('/authenticate', (req, res, next) => {
 router.post('/authenticate', (req, res, next) => {
     const id = req.body.id
     const pass = req.body.pass
+    console.log(id)
+    console.log(pass)
 
     if (!id || !pass){
         return res.json({ success: false, msg: 'Employee ID or Pass is missing' })
@@ -68,29 +66,26 @@ router.post('/authenticate', (req, res, next) => {
 
     Emp.getEmpByID(id, (emp) => {
         if (!emp || !emp.isActive) {
-            return res.json({ success: false, msg: 'Employee not found' })
+            return res.json({ success: false, status: 'Employee', msg: 'Employee not found' })
         }
  
         Emp.comparePassword(pass, emp.hash, (err, isMatch) => {
-            if (err) {
-                return res.send('Error Auth')
+            if (err) { 
+                return res.json({success: false, status: 'Error'})
             }
             if (isMatch) {
-                const token = jwt.sign(JSON.parse(JSON.stringify(emp)), 'secret', {
+                const employee = {id: emp.id, firstName: emp.firstName, lastName: emp.lastName}
+                const token = jwt.sign(employee, 'secret', {
                     expiresIn: 604800,
                 })
                 res.json({
                     success: true,
+                    status: "Token",
                     token: 'JWT ' + token,
-                    emp: {
-                        id: emp.id,
-                        firstName: emp.firstName,
-                        lastName: emp.lastName,
-                        isActive: emp.isActive
-                    }
+                    emp: employee
                 })
             } else {
-                return res.json({ success: false, msg: 'Wrong Password' })
+                return res.json({ success: false, status: 'Password', msg: 'Wrong Password' })
             }
         })
     })

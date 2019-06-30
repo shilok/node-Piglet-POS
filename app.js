@@ -1,15 +1,30 @@
 const express = require('express')
-const https = require('https')
 const passport = require('passport')
 const cors = require('cors')
-const app = express()
+const app = require('./config/app')
 const PORT = process.env.PORT || 5000;
+ 
 
-const credentials = require('./credentials')
-const httpsServer = https.createServer(credentials, app);
- 
- 
-app.use(express.json())
+
+const httpsServer = require('./config/httpServer')
+
+const io = require('./config/io');
+
+app.get('/test', (req, res) => {
+    io.sockets.emit('headlines_updated')
+    res.send('OK')
+})
+
+io.on('connection', function (socket) {
+
+    console.log(`Connected: ${socket.id}`)
+
+  });
+  
+
+
+
+
 app.use(cors())
 app.use(passport.initialize())
 app.use(passport.session())

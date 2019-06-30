@@ -37,23 +37,25 @@ const setEmployeeToJson = (emp, data) => {
 }
 
 
-router.post('/getProductsByEmployeeID', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.post('/getProducts', passport.authenticate('jwt', { session: false }), (req, res) => {
 
     const empID = req.user.id
-    console.log(req.user.id)
+
     const emp = {}
     let stockID = 0
-
-    console.log(req.user.id)
-
+  
     const jsonData = { employee: {}, products: [] }
 
     getEmployeeStores(empID).then(stores => {
         if (!stores) {
-            return res.send('Employee not connected to any Store')
+            return res.json({success: false, status: 'Empty'})
         }
         if (stores.length > 1) {
-            return res.send('More than one')
+            const str = {stores: []}
+            stores.forEach(store => {
+                str.stores.push({storeID: store.id, StoreName: store.name, inventoryID: store.stockInventoryID})
+            });
+            return res.json({success: true, status:'stores', stores: str.stores})
         }
 
         setEmployeeToJson(emp, stores)
@@ -73,10 +75,11 @@ router.post('/getProductsByEmployeeID', passport.authenticate('jwt', { session: 
                 }
                 jsonData.products.push(product)
             });
-            res.send(jsonData)
+            res.json({success: true, status: 'store', employee: emp, products: jsonData.products})
         })
     })
 })
+
 
 
 

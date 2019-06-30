@@ -2,6 +2,7 @@ var express = require('express')
 var router = express.Router()
 
 const knex = require('../../knex')
+const io = require('../../config/io')
 
 router.post('/createOrder', (req, res) => {
     const order = req.body.order
@@ -20,7 +21,7 @@ function productAvailable(productQuantity, result) {
         return false
     }
 }
-
+ 
 router.post('/addProductToOrder', (req, res) => {
 
     const orderDetails = {
@@ -51,6 +52,8 @@ router.post('/addProductToOrder', (req, res) => {
                     discountApproval = true
                     return trx('OrderDetails').insert(orderDetails).then(() => {
                         if (orderDetails.statusID == 1) {
+                            io.sockets.emit('quantity_updated', orderDetails)
+ 
                             return trx('InventoryProduct').decrement('quantity', orderDetails.quantity)
                         }
                     })
