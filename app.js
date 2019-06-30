@@ -3,26 +3,17 @@ const passport = require('passport')
 const cors = require('cors')
 const app = require('./config/app')
 const PORT = process.env.PORT || 5000;
- 
+
 
 
 const httpsServer = require('./config/httpServer')
 
 const io = require('./config/io');
 
-app.get('/test', (req, res) => {
-    io.sockets.emit('headlines_updated')
-    res.send('OK')
-})
 
-io.on('connection', function (socket) {
-
-    console.log(`Connected: ${socket.id}`)
-
-  });
-  
-
-
+io.on('connection', socket => {
+  console.log(`Connected: ${socket.id}`)
+});
 
 
 app.use(cors())

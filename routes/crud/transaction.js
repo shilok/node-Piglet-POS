@@ -15,13 +15,15 @@ router.post('/createOrder', (req, res) => {
 })
 
 function productAvailable(productQuantity, result) {
+
+
     if (result.quantity > productQuantity) {
         return true
     } else {
         return false
     }
 }
- 
+
 router.post('/addProductToOrder', (req, res) => {
 
     const orderDetails = {
@@ -37,42 +39,60 @@ router.post('/addProductToOrder', (req, res) => {
 
     let discountApproval = false
     let productAvail = false
+    let productExist = false
 
     knex.transaction(trx => {
         return trx('Product').first()
             .where('id', orderDetails.productID)
-            .join({ip: 'InventoryProduct'}, function(){
+            .join({ ip: 'InventoryProduct' }, function () {
                 this.on('ip.productID', orderDetails.productID).andOn('ip.inventoryID', orderDetails.inventoryID)
             })
             .then((result) => {
-                if (productAvailable(orderDetails.quantity, result)){
-                    productAvail = true
-                }
-                if (result.minPrice <= orderDetails.price / orderDetails.quantity) {
-                    discountApproval = true
-                    return trx('OrderDetails').insert(orderDetails).then(() => {
-                        if (orderDetails.statusID == 1) {
-                            io.sockets.emit('quantity_updated', orderDetails)
- 
-                            return trx('InventoryProduct').decrement('quantity', orderDetails.quantity)
-                        }
-                    })
+                if (result) {
+                    productExist = true
+                    if (productAvailable(orderDetails.quantity, result)) {
+                        productAvail = true
+                    }
+                    if (result.minPrice <= orderDetails.price / orderDetails.quantity) {
+                        discountApproval = true
+                        return trx('OrderDetails').insert(orderDetails).then(() => {
+                            if (orderDetails.statusID == 1) {
+                                return trx('InventoryProduct').decrement('quantity', orderDetails.quantity)
+                                    .where(inv => {
+                                        inv.where('productID', orderDetails.productID)
+                                            .andWhere('inventoryID', orderDetails.inventoryID)
+                                    }).then(()=>{
+                                        return trx('InventoryProduct').first().where(inv => {
+                                            inv.where('productID', orderDetails.productID)
+                                                .andWhere('inventoryID', orderDetails.inventoryID)
+                                        }).then(product => {
+                                            io.sockets.emit('quantity_updated', product)
+                                        })
+                                    })
+                            }
+                        })
+                    }
                 }
             })
     }).then(() => {
-        res.sendStatus(202)
-        if (discountApproval && productAvail) {
-            console.log('Success')
-        } else if (!discountApproval && !productAvail) {
-            console.log('Price not approved and Product not available')
-        }else if (!productAvail){
-            console.log('Product not available')
-        }else{
-            console.log('Price not approved')
+        if (!productExist) {
+            console.log("Product does not exist")
+            return res.json({ success: false, status: "Product does not exist" })
         }
+        if (!productAvail) {
+            console.log('Product not available')
+            return res.json({ success: false, status: "Product not available" })
+        }
+        if (!discountApproval) {
+            console.log('Price not approved')
+            return res.json({ success: false, status: "Price not approved" })
+        }
+        console.log(`Success`)
+        return res.json({ success: true})
+
     }).catch(error => {
         console.log(error)
-        res.status(400).send(error)
+        return res.json({success: false, error: error})
     })
 })
 
@@ -134,17 +154,17 @@ router.post('/submitOrder', (req, res) => {
 router.post('/cancelOrder', (req, res) => {
     const orderID = req.body.orderID
 
-    knex({od: 'OrderDetails'})
+    knex({ od: 'OrderDetails' })
         .where(build => {
             build.where('od.orderID', orderID).andWhere('od.statusID', 1)
         })
-        .join({ip: 'InventoryProduct'}, function () {
+        .join({ ip: 'InventoryProduct' }, function () {
             this.on('ip.productID', 'od.productID').andOn('ip.inventoryID', 'od.inventoryID')
         })
-        .update({'ip.quantity': knex.raw('?? + ??', ['ip.quantity', 'od.quantity'])})
-    .then(result => {
-        res.sendStatus(202)
-    }).catch(err => {res.send(err)})
+        .update({ 'ip.quantity': knex.raw('?? + ??', ['ip.quantity', 'od.quantity']) })
+        .then(result => {
+            res.sendStatus(202)
+        }).catch(err => { res.send(err) })
 })
 
 
