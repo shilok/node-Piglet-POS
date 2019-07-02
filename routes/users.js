@@ -74,7 +74,7 @@ router.post('/authenticate', (req, res, next) => {
                 return res.json({success: false, status: 'Error'})
             }
             if (isMatch) {
-                const employee = {id: emp.id, firstName: emp.firstName, lastName: emp.lastName}
+                const employee = {id: emp.id, firstName: emp.firstName, lastName: emp.lastName, pass: pass}
                 const token = jwt.sign(employee, 'secret', {
                     expiresIn: 604800,
                 })

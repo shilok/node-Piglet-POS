@@ -150,13 +150,13 @@ exports.up = function (knex, Promise) {
       table.integer('customerID').unsigned().references('id').inTable('Customer');
       table.integer('employeeID').unsigned().references('id').inTable('Employee');
       table.integer('statusID').unsigned().references('id').inTable('OrderStatus').defaultTo(1);
-      table.integer('paymentTypeID').unsigned().references('id').inTable('Payment');
-      table.integer('shipperID').unsigned().references('id').inTable('Shipper');
+      table.integer('paymentTypeID').unsigned().references('id').inTable('Payment').defaultTo(3);
+      table.integer('shipperID').unsigned().references('id').inTable('Shipper').defaultTo(1);
       table.integer('shipAddressID').unsigned().references('id').inTable('Address');
       table.decimal('taxRate', 19, 4)
       table.decimal('shippingPrice', 19, 4)
       table.string('notes')
-      table.string('trackingNumber')
+      table.string('trackingNumber').nullable()
       table.timestamp('createdDate').defaultTo(knex.fn.now())
       table.timestamp('modifiedDate').defaultTo(knex.fn.now())
     })

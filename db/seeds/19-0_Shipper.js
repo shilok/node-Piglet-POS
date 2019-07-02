@@ -7,10 +7,10 @@ exports.seed = function (knex, Promise) {
         return knex('Shipper').insert(
           [
             {
-                "name": "DHL",
-                "phone": "1-800-225-5345",
-                "website": "https://www.dhl.com/en.html",
-                "trackingURL": "https://www.dhl.co.il/he/express/tracking.html?AWB="
+                "name": "Pickup",
+                "phone": "0000-0000-0000",
+                "website": "https://Piglet-POS.com",
+                "trackingURL": ""
               },
               {
                 "name": "Fedex",
@@ -23,6 +23,12 @@ exports.seed = function (knex, Promise) {
                 "phone": "1-866-782-7892",
                 "website": "https://www.ups.com",
                 "trackingURL": "https://www.ups.com/track?loc=en_US&requester=ST/track#"
+              },
+              {
+                "name": "DHL",
+                "phone": "1-800-225-5345",
+                "website": "https://www.dhl.com/en.html",
+                "trackingURL": "https://www.dhl.co.il/he/express/tracking.html?AWB="
               }
           ]
         );

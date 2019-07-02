@@ -36,34 +36,17 @@ const setEmployeeToJson = (emp, data) => {
     emp.hash = data[0].hash
 }
 
-
+ 
 router.post('/getProducts', passport.authenticate('jwt', { session: false }), (req, res) => {
 
     const empID = req.user.id
+    const products = [] 
 
-    const emp = {}
-    let stockID = 0
-  
-    const jsonData = { employee: {}, products: [] }
 
-    getEmployeeStores(empID).then(stores => {
-        if (!stores) {
-            return res.json({success: false, status: 'Empty'})
-        }
-        if (stores.length > 1) {
-            const str = {stores: []}
-            stores.forEach(store => {
-                str.stores.push({storeID: store.id, StoreName: store.name, inventoryID: store.stockInventoryID})
-            });
-            return res.json({success: true, status:'stores', stores: str.stores})
-        }
-
-        setEmployeeToJson(emp, stores)
-        jsonData.employee = emp
-        stockID = stores[0].stockInventoryID
-
-        getInventoryProducts(stockID).then(products => {
-            products.forEach(p => {
+    if (req.body.stockID){
+        const stockID = req.body.stockID
+        getInventoryProducts(stockID).then(results => {
+            results.forEach(p => {
                 const product = {
                     name: p.name,
                     description: p.description,
@@ -73,14 +56,81 @@ router.post('/getProducts', passport.authenticate('jwt', { session: false }), (r
                     stockID: p.inventoryID,
                     productID: p.productID
                 }
-                jsonData.products.push(product)
+                products.push(product)
             });
-            res.json({success: true, status: 'store', employee: emp, products: jsonData.products})
+            return res.json({success: true, status: 'stores', products: products})
+        }).catch(err => {
+            return res.json({success: false, status: 'error', msg: err})
+        })
+    }
+
+    const emp = {}
+    let stockID = 0
+  
+    
+    getEmployeeStores(empID).then(stores => {
+        if (!stores) {
+            return res.json({success: false, status: 'Empty'})
+        }
+        if (stores.length > 1) {
+            const str = []
+            stores.forEach(store => {
+                str.push({id: store.id, name: store.name, stockID: store.stockInventoryID})
+            });
+            return res.json({success: true, status:'stores', stores: str})
+        }
+ 
+
+        stockID = stores[0].stockInventoryID
+
+        getInventoryProducts(stockID).then(results => {
+            results.forEach(p => {
+                const product = {
+                    name: p.name,
+                    description: p.description,
+                    minPrice: p.minPrice,
+                    displayPrice: p.displayPrice,
+                    quantity: p.quantity,
+                    stockID: p.inventoryID,
+                    productID: p.productID
+                }
+                products.push(product)
+            });
+            return res.json({success: true, status: 'store', products: products})
+        }).catch(err => {
+            return res.json({success: false, status: 'error', msg: err})
         })
     })
 })
 
 
+router.post('/getStoreProducts', passport.authenticate('jwt', { session: false }), (req, res) => {
+
+    const products = [] 
+    const stockID = req.body.stockID
+
+    if (!stockID){
+        return res.json({success: false, status: 'error', msg: 'Stock ID empty!'})
+    }
+ 
+        getInventoryProducts(stockID).then(results => {
+            results.forEach(p => {
+                const product = {
+                    name: p.name,
+                    description: p.description,
+                    minPrice: p.minPrice,
+                    displayPrice: p.displayPrice,
+                    quantity: p.quantity,
+                    stockID: p.inventoryID,
+                    productID: p.productID
+                }
+                products.push(product)
+            });
+            return res.json({success: true, status: 'store', products: products})
+        }).catch(err => {
+            return res.json({success: false, status: 'error', msg: err})
+        })
+})
 
 
 
