@@ -16,25 +16,116 @@ const getInventoryProducts = (inventoryID) => {
         .where('ip.InventoryID', inventoryID)
 }
 
-const setEmployeeToJson = (emp, data) => {
-    emp.id = data[0].id
-    emp.firstName = data[0].firstName
-    emp.lastName = data[0].lastName
-    emp.email = data[0].email
-    emp.birthday = data[0].birthday
-    emp.hireDate = data[0].hireDate
-    emp.salaryTypeID = data[0].salaryTypeID
-    emp.commissionTypeID = data[0].commissionTypeID
-    emp.country = data[0].country
-    emp.state = data[0].state
-    emp.city = data[0].city
-    emp.street = data[0].street
-    emp.line1 = data[0].line1
-    emp.line2 = data[0].line2
-    emp.image = data[0].image
-    emp.notes = data[0].notes
-    emp.hash = data[0].hash
+const getInventoryProductsTest = (inventoryID) => {
+    return knex({ ip: 'InventoryProduct' })
+        .join({ p: 'Product' }, 'p.id', 'ip.productID')
+        .leftJoin({imgP: 'ProductImage'}, 'imgP.productID', 'ip.productID')
+        .leftJoin({img: 'Image'}, 'img.id', 'imgP.imageID')
+        .leftJoin({pTag: 'ProductTag'}, 'pTag.productID', 'p.id')
+        .leftJoin({tag: 'Tag'}, 'tag.id', 'pTag.tagID')
+        .where('ip.inventoryID', inventoryID)
+        .select({name: 'p.name', description: 'p.description', minPrice: 'p.minPrice', displayPrice: 'p.displayPrice',
+                quantity: 'ip.quantity', stockID: 'ip.inventoryID', productID: 'p.id',
+                imageUrl: knex.raw('GROUP_CONCAT(DISTINCT img.url)')
+                ,tags: knex.raw('GROUP_CONCAT(DISTINCT tag.name)')
+            })
+        .groupBy('ip.productID', 'ip.quantity')
 }
+
+
+router.post('/getProductsTest', passport.authenticate('jwt', { session: false }), (req, res) => {
+
+    const empID = req.user.id
+    const products = [] 
+
+    const employee = {
+        id: req.user.id,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        email: req.user.email,
+        birthday: req.user.birthday,
+        salaryTypeID: req.user.salaryTypeID,
+        commissionTypeID: req.user.commissionTypeID,
+        notes: req.user.notes,
+        image: req.user.image,
+    }
+
+    if (req.body.stockID){
+        const stockID = req.body.stockID
+        getInventoryProductsTest(stockID).then(results => {
+            console.log(results.length)
+            results.forEach(p => {
+                const product = {
+                    name: p.name,
+                    description: p.description,
+                    minPrice: p.minPrice,
+                    displayPrice: p.displayPrice,
+                    quantity: p.quantity,
+                    stockID: p.stockID,
+                    productID: p.productID
+                }
+                if (p.imageUrl){
+                    product.imagesURL = [p.imageUrl]
+                }
+                if (p.tags){
+                    product.tags = [p.tags]
+                }
+                products.push(product)
+                
+            });
+            return res.json({success: true, status: 'products', employee: employee, products: products})
+        }).catch(err => {
+            return res.json({success: false, status: 'error', msg: err})
+        })
+        return
+    }
+
+    const emp = {}
+    let stockID = 0
+  
+    
+    getEmployeeStores(empID).then(stores => {
+        if (!stores) {
+            return res.json({success: false, status: 'Empty'})
+        }
+        if (stores.length > 1) {
+            const str = []
+            stores.forEach(store => {
+                str.push({id: store.id, name: store.name, stockID: store.stockInventoryID})
+            });
+            return res.json({success: true, status:'stores', employee: employee, stores: str})
+        }
+ 
+
+        stockID = stores[0].stockInventoryID
+
+        getInventoryProductsTest(stockID).then(results => {
+            console.log(results.length)
+            results.forEach(p => {
+                const product = {
+                    name: p.name,
+                    description: p.description,
+                    minPrice: p.minPrice,
+                    displayPrice: p.displayPrice,
+                    quantity: p.quantity,
+                    stockID: p.stockID,
+                    productID: p.productID
+                }
+                if (p.imageUrl){
+                    product.imagesURL = [p.imageUrl]
+                }
+                if (p.tags){
+                    product.tags = [p.tags]
+                }
+                products.push(product)
+                
+            });
+            return res.json({success: true, status: 'products', employee: employee, products: products})
+        }).catch(err => {
+            return res.json({success: false, status: 'error', msg: err})
+        })
+    })
+})
 
  
 router.post('/getProducts', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -58,10 +149,11 @@ router.post('/getProducts', passport.authenticate('jwt', { session: false }), (r
                 }
                 products.push(product)
             });
-            return res.json({success: true, status: 'stores', products: products})
+            return res.json({success: true, status: 'products', products: products})
         }).catch(err => {
             return res.json({success: false, status: 'error', msg: err})
         })
+        return
     }
 
     const emp = {}
@@ -96,7 +188,7 @@ router.post('/getProducts', passport.authenticate('jwt', { session: false }), (r
                 }
                 products.push(product)
             });
-            return res.json({success: true, status: 'store', products: products})
+            return res.json({success: true, status: 'products', products: products})
         }).catch(err => {
             return res.json({success: false, status: 'error', msg: err})
         })
@@ -126,7 +218,7 @@ router.post('/getStoreProducts', passport.authenticate('jwt', { session: false }
                 }
                 products.push(product)
             });
-            return res.json({success: true, status: 'store', products: products})
+            return res.json({success: true, status: 'products', products: products})
         }).catch(err => {
             return res.json({success: false, status: 'error', msg: err})
         })

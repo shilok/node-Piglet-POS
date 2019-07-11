@@ -1,27 +1,31 @@
 var express = require('express')
 var router = express.Router()
+const passport = require('passport')
 
 const knex = require('../../knex')
 const io = require('../../config/io')
 
-router.post('/createOrder', (req, res) => {
-    const order = req.body.order
+router.post('/createOrder', passport.authenticate('jwt', { session: false }), (req, res) => {
+    let order = {}
+    if (req.body.order){
+         order = req.body.order
+    }
+    order.employeeID = req.user.id
 
     knex('Order').insert(order).then(orderID => {
-        res.status(201).send(orderID)
+        knex('Order').where('id', orderID).first().then(data => {
+            return res.json({success: true, order: data})
+        })
     }).catch(error => {
-        res.status(400).send(error)
+        return res.json({success: false})
     })
 })
 
 function productAvailable(productQuantity, result) {
-
-
     if (result.quantity > productQuantity) {
         return true
-    } else {
-        return false
     }
+    return false
 }
 
 router.post('/addProductToOrder', (req, res) => {
@@ -166,7 +170,7 @@ router.post('/cancelOrder', (req, res) => {
             res.sendStatus(202)
         }).catch(err => { res.send(err) })
 })
-
+ 
 
 
 
