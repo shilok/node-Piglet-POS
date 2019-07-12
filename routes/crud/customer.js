@@ -26,9 +26,9 @@ router.post('/createCustomer', (req, res) => {
             })
         })
     }).then(() => {
-        res.status(201).send("OK")
+        res.json({'success': true})
     }).catch(error => {
-        res.status(400).send(error)
+        res.json({'success': false})
     })
 })
 
@@ -45,5 +45,23 @@ router.post('/addEmail', (req, res) => {
         .catch(err => { res.sendStatus(400) })
 })
 
+ 
+router.get('getCustomer', (req, res) => {
+    knex({cust: 'Customer'})
+    .join({addr: 'Address'}, 'addr.id', 'cust.defaultAddressID')
+    .join({cp: 'CustomerPhone'}, 'cp.customerID', 'cust.id')
+    .join({p: 'Phone'}, 'p.id', 'cp.phoneID')
+    .select({id: 'cust.id', firstName: 'cust.firstName', lastName: 'cust.lastName',
+                country: 'addr.country', state: 'addr.state', city: 'addr.city',
+                line1: 'addr.line1', line2: 'addr.line2',
+              phones: knex.raw('GROUP_CONCAT(p.number)')
+            })
+    .where('cust.id', 2)
+    .then(result => {
+        console.log(result)
+    }).catch(err => {
+        console.log(err)
+    })
+})
 
 module.exports = router

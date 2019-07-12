@@ -6,7 +6,6 @@ exports.up = function (knex, Promise) {
       table.string('country').notNullable()
       table.string('state').notNullable()
       table.string('city').notNullable()
-      table.string('street').notNullable()
       table.string('line1').notNullable()
       table.string('line2')
     })
