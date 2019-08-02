@@ -40,7 +40,7 @@ const getProducts = (inventoryID) =>
         .groupBy('ip.productID', 'ip.quantity')
 
 
-router.post('/getProducts', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.post('/getProducts', passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
     const empID = req.user.id
 
@@ -72,8 +72,7 @@ router.post('/getProducts', passport.authenticate('jwt', { session: false }), (r
             }
             return res.json({ success: true, status: 'products', employee: employee, products: products })
         }).catch(err => {
-            console.log(err)
-            return res.json({ success: false, status: 'error', msg: err })
+            return next(new Error(err));
         })
         return
     }
@@ -109,11 +108,11 @@ router.post('/getProducts', passport.authenticate('jwt', { session: false }), (r
             }
             return res.json({ success: true, status: 'products', employee: employee, products: products })
         }).catch(err => {
-            return res.json({ success: false, status: 'error', msg: err })
+            return next(new Error(err));
         })
     })
 })
-
+ 
 
 
 router.post('/getStoreProducts', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -140,7 +139,7 @@ router.post('/getStoreProducts', passport.authenticate('jwt', { session: false }
         });
         return res.json({ success: true, status: 'products', products: products })
     }).catch(err => {
-        return res.json({ success: false, status: 'error', msg: err })
+        return next(new Error(err));
     })
 })
 

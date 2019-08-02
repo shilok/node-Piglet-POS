@@ -3,18 +3,11 @@ const passport = require('passport')
 const cors = require('cors')
 const app = require('./config/app')
 const PORT = process.env.PORT || 5000;
-
-
-
+const logger = require('./config/winston')
 const httpsServer = require('./config/httpServer')
 
-const io = require('./config/io');
-
-
-io.on('connection', socket => {
-  console.log(`Connected: ${socket.id}`)
-});
-
+ 
+app.use(logger.info)
 
 app.use(cors())
 app.use(passport.initialize())
@@ -30,4 +23,14 @@ app.use('/api/users', require('./routes/users'))
 
 
 
+    
+  app.use(logger.errorWin)
+
+  app.use((err, req, res, next) => {
+    return res.status(500).json({ success: false, status: 'error'})
+  })
+
+
+
 httpsServer.listen(PORT, () => { console.log(`HTTPS Server running on port ${PORT}`) })
+ 

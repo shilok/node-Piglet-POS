@@ -39,6 +39,7 @@ router.post('/register', (req, res, next) => {
 })
 
 router.get('/authenticate', (req, res, next) => {
+    if (!req.query.emp){return res.json({})}
     const emp = JSON.parse(req.query.emp)
     const employee = {id: emp.id, firstName: emp.firstName, lastName: emp.lastName}
     const token = jwt.sign(employee, 'secret', {

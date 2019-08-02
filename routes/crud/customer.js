@@ -43,33 +43,23 @@ const getCustomer = (customerID) => getCustomerByID(customerID)
 
 router.post('/createCustomer', (req, res) => {
 
-    const email = { address: req.body.email }
-    const phoneNumber = { number: req.body.phoneNumber }
-    const address = req.body.address
+    console.log(req.body)
     const customer = req.body.customer
-
+    const address = req.body.address
+ 
     knex.transaction(trx => {
         return trx('Address').insert(address).then(addressID => {
-            return trx('Email').insert(email).then(emailID => {
                 customer.defaultAddressID = addressID
-                return trx('Phone').insert(phoneNumber).then(phoneID => {
                     return trx('Customer').insert(customer).then(customerID => {
-                        return trx('CustomerAddress').insert({ customerID: customerID, addressID: addressID }).then(() => {
-                            return trx('CustomerEmail').insert({ customerID: customerID, emailID: emailID }).then(() => {
-                                return trx('CustomerPhone').insert({ customerID: customerID, phoneID: phoneID })
-                            })
-                        })
+                        return res.json({ 'success': true, 'customerID': customerID[0]})
                     })
-                })
-            })
         })
     }).then(() => {
-        res.json({ 'success': true })
     }).catch(error => {
-        res.json({ 'success': false })
+        return next(new Error(error));
     })
 })
-
+ 
 router.post('/addCustomerEmail', (req, res) => {
     if (!req.body.customerID) { return res.json({ success: false, msg: 'CustomerID is missing' }) }
     if (!req.body.email) { return res.json({ success: false, msg: 'Email Address is missing' }) }
@@ -87,12 +77,14 @@ router.post('/addCustomerEmail', (req, res) => {
         })
     })
         .then(data => { return res.json({ success: true }) })
-        .catch(err => { return res.json({ success: false }) })
+        .catch(err => { return next(new Error(err)) })
 
 })
-
+const io = require('../../config/io');
 
 router.post('/getCustomer', passport.authenticate('jwt', { session: false }), (req, res) => {
+    io.sockets.emit('replay', 'hey')
+    
     if (!req.body.customerID) {
         return res.json({ success: false, msg: 'CustomerID required' })
     }
@@ -139,7 +131,7 @@ router.post('/getCustomer', passport.authenticate('jwt', { session: false }), (r
         return res.json({ success: true, customer: customer })
 
     }).catch(err => {
-        return res.json({ success: false, msg: err })
+        return next(new Error(err));
     })
 
 

@@ -8,10 +8,11 @@ module.exports = (passport) => {
     opts.secretOrKey = 'secret'
 
     passport.use(new JwtStrategy(opts, (jwt, done) => {
+    
         User.getEmpByID(jwt.id, emp => {
             if (emp && emp.isActive) {
                 User.comparePassword(jwt.pass, emp.hash, (err, isMatch) => {
-                    if (err) {
+                    if (err) {                        
                         return done(null, false)
                     }
                     if (isMatch) {
@@ -24,4 +25,4 @@ module.exports = (passport) => {
             }
         })
     }))
-}
+} 

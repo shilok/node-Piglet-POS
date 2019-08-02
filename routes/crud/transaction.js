@@ -10,6 +10,7 @@ router.post('/createOrder', passport.authenticate('jwt', { session: false }), (r
     if (req.body.order){
          order = req.body.order
     }
+    console.log(req.body)
     order.employeeID = req.user.id
 
     knex('Order').insert(order).then(orderID => {
@@ -17,10 +18,10 @@ router.post('/createOrder', passport.authenticate('jwt', { session: false }), (r
             return res.json({success: true, order: data})
         })
     }).catch(error => {
-        return res.json({success: false})
+        return next(new Error(error));
     })
 })
-
+ 
 function productAvailable(productQuantity, result) {
     if (result.quantity > productQuantity) {
         return true
@@ -95,9 +96,50 @@ router.post('/addProductToOrder', (req, res) => {
         return res.json({ success: true})
 
     }).catch(error => {
-        console.log(error)
-        return res.json({success: false, error: error})
+        return next(new Error(error));
     })
+})
+
+router.post('/createOrderTest', passport.authenticate('jwt', { session: false }), (req, res) => {
+ 
+    let order = {}
+    // console.log(req.body)
+    order.employeeID = req.user.id
+    const orderDetails = req.body.orderDetails
+        knex.transaction(trx => {
+            return trx('Order').insert(order).then(orderID => {
+                order.orderID = orderID
+                orderDetails.forEach(orderDetails => {orderDetails.orderID = orderID[0]})
+                return trx('OrderDetails').insert(orderDetails).then(ids => {
+                    console.log(ids)
+                })
+            })
+        }).then((data) => {
+            console.log(`Success: orderID  ${data}: ${order.orderID}`)
+            knex('Order').where('id', order.orderID).first().then(order => {
+                return res.json({success: true, order: order})
+            })    
+        }).catch(error => {
+            return next(new Error(error));
+        })
+})
+ 
+router.post('/updateOrderDetails', passport.authenticate('jwt', { session: false }), (req, res) => {
+ 
+    let id = req.body.id
+    if (!id){
+        return res.json({success: false, msg: 'id is Missing'})
+    }
+    
+        knex('OrderDetails').update(req.body).where('id', id).then(result => {
+            console.log(result)
+            if (result < 1) { return res.json({success: false, status: "Failing to update"}) }
+            return res.json({success: true})
+        }).catch(error => {
+            return next(new Error(error));
+        })
+    
+
 })
 
 router.post('/checkAvailability', (req, res) => {
@@ -109,16 +151,15 @@ router.post('/checkAvailability', (req, res) => {
         .where({ 'inventoryID': inventoryID, 'productID': productID })
         .then(result => {
             if (quantity > result.quantity) {
-                res.status(202).send('Missing in stock')
+                return res.json({status: 'Missing in stock'})
             } else {
-                res.status(202).send('In Stock')
+                return res.json({status: 'In Stock'})
             }
         }).catch(error => {
-            res.status(400).send(error)
+            return next(new Error(error));
         })
 
 })
-
 
 
 router.post('/submitOrder', (req, res) => {
@@ -148,8 +189,7 @@ router.post('/submitOrder', (req, res) => {
     }).then(() => {
         res.send("OK")
     }).catch(error => {
-        res.status(400).send(error)
-        console.log(error)
+        return next(new Error(error));
     })
 
 
@@ -168,7 +208,9 @@ router.post('/cancelOrder', (req, res) => {
         .update({ 'ip.quantity': knex.raw('?? + ??', ['ip.quantity', 'od.quantity']) })
         .then(result => {
             res.sendStatus(202)
-        }).catch(err => { res.send(err) })
+        }).catch(err => {
+            return next(new Error(err));
+        })
 })
  
 

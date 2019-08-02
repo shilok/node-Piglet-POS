@@ -3,8 +3,10 @@ exports.up = function (knex, Promise) {
 
     .createTable('Address', table => {
       table.increments()
+      table.string('phone')
+      table.string('email')
       table.string('country').notNullable()
-      table.string('state').notNullable()
+      table.string('state')
       table.string('city').notNullable()
       table.string('line1').notNullable()
       table.string('line2')
@@ -144,6 +146,7 @@ exports.up = function (knex, Promise) {
       table.string('type').notNullable()
     })
 
+
     .createTable('Order', table => {
       table.increments()
       table.integer('customerID').unsigned().references('id').inTable('Customer');
@@ -151,7 +154,7 @@ exports.up = function (knex, Promise) {
       table.integer('statusID').unsigned().references('id').inTable('OrderStatus').defaultTo(1);
       table.integer('paymentTypeID').unsigned().references('id').inTable('Payment').defaultTo(3);
       table.integer('shipperID').unsigned().references('id').inTable('Shipper').defaultTo(1);
-      table.integer('shipAddressID').unsigned().references('id').inTable('Address');
+      table.integer('addressID').unsigned().references('id').inTable('Address');
       table.decimal('taxRate', 19, 4)
       table.decimal('shippingPrice', 19, 4)
       table.string('notes')
@@ -169,14 +172,16 @@ exports.up = function (knex, Promise) {
       table.timestamp('createdDate').defaultTo(knex.fn.now())
       table.timestamp('modifiedDate').defaultTo(knex.fn.now())
     })
-
+ 
 
     .createTable('OrderDetails', table => {
-      table.increments()
+      table.collate('utf8_general_ci');
+      table.uuid('id').notNullable();
       table.integer('orderID').unsigned().references('id').inTable('Order');
       table.integer('productID').unsigned().references('id').inTable('Product');
       table.integer('inventoryID').unsigned().references('id').inTable('Inventory');
       table.integer('statusID').unsigned().references('id').inTable('OrderDetailsStatus');
+      table.text('notes')
       table.integer('quantity').notNullable()
       table.decimal('price', 19, 4)
       table.decimal('discount', 19, 4).defaultTo(0)
